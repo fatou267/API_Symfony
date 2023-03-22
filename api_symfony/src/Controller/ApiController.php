@@ -49,7 +49,7 @@ class ApiController extends AbstractController
         return new JsonResponse($jsonpiecesList, Response::HTTP_OK, [], true);
     }
 
-    #[Route('api/buildings/presonnes_presentes',name:'personnes_presentes',methods:['GET'])]
+    #[Route('api/buildings/presonnes_presentes?piece={pieceId}&building={buildingId}',name:'personnes_presentes',methods:['GET'])]
     public function getTotalPersonnes(Request $request, PiecesRepository $pieces, BuildingsRepository $buildings, SerializerInterface $serializer): JsonResponse
    {
         // Récupérer les paramètres de l'URL
@@ -66,7 +66,7 @@ class ApiController extends AbstractController
         // Si l'ID de la pièce est donné, récupérer seulement cette pièce
         // Sinon, récupérer toutes les pièces du bâtiment
         if ($pieceId) {
-            $piecesList = $pieces->findBy(['building' => $building, 'id' => $pieceId]);
+            $piecesList = $pieces->findBy(['building' => $building->getIdBuildings(), 'id' => $pieceId]);
         } else {
             $piecesList = $building->getPieces();
         }
@@ -75,7 +75,7 @@ class ApiController extends AbstractController
        
         $totalPeople = 0;
         foreach ($piecesList as $piece) {
-            $totalPeople += count($piece->getPeople());
+            $totalPeople += count($piece->getPersonnesPresentes());
         }
 
         $jsonData = $serializer->serialize([
